@@ -1,0 +1,11 @@
+api_platform:
+  title: 'CarLog API'
+  version: '1.0.0'
+  defaults:
+    pagination_items_per_page: 30
+  formats:
+    jsonld:  ['application/ld+json']
+    json:    ['application/json']
+    html:    ['text/html']
+  swagger:
+    versions: [3]
