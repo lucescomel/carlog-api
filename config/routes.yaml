@@ -1,0 +1,5 @@
+# Route factice pour le endpoint json_login du firewall Symfony.
+# Le firewall l'intercepte avant qu'elle n'atteigne un contrôleur.
+app_login_check:
+  path: /auth/login
+  methods: [POST]

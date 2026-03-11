@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Delete;
 use App\Repository\VehicleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use App\Entity\User;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -56,6 +57,11 @@ class Vehicle
     private \DateTimeImmutable $createdAt;
     #[ORM\Column(type: Types::DATETIME_MUTABLE)] #[Groups(['vehicle:read'])]
     private \DateTime $updatedAt;
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'vehicles')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    // Pas dans vehicle:write — assigné automatiquement par VehicleOwnerListener
+    private ?User $owner = null;
+
     #[ORM\OneToMany(mappedBy: 'vehicle', targetEntity: ServiceRecord::class, orphanRemoval: true, cascade: ['persist'])]
     private Collection $records;
     public function __construct()
@@ -84,6 +90,8 @@ class Vehicle
     public function setVin(?string $vin): self { $this->vin = $vin; return $this; }
     public function getOdometer(): ?int { return $this->odometer; }
     public function setOdometer(?int $odometer): self { $this->odometer = $odometer; return $this; }
+    public function getOwner(): ?User { return $this->owner; }
+    public function setOwner(?User $owner): static { $this->owner = $owner; return $this; }
     public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
     public function getUpdatedAt(): \DateTime { return $this->updatedAt; }
     /** @return Collection<int, ServiceRecord> */

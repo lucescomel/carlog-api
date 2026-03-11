@@ -1,0 +1,54 @@
+security:
+  password_hashers:
+    App\Entity\User:
+      algorithm: auto
+
+  providers:
+    app_user_provider:
+      entity:
+        class: App\Entity\User
+        property: email
+
+  firewalls:
+    dev:
+      pattern: ^/(_(profiler|wdt)|css|images|js)/
+      security: false
+
+    # Endpoint JWT login — intercepté par json_login AVANT le routeur
+    login:
+      pattern: ^/auth/login
+      stateless: true
+      json_login:
+        check_path: app_login_check         # nom de la route déclarée dans routes.yaml
+        username_path: email
+        password_path: password
+        success_handler: lexik_jwt_authentication.handler.authentication_success
+        failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+    # Endpoint register — public, pas de JWT requis
+    register:
+      pattern: ^/auth/register
+      stateless: true
+      security: false
+
+    # Toutes les routes API Platform → JWT obligatoire
+    api:
+      pattern: ^/
+      stateless: true
+      jwt: ~
+
+  access_control:
+    # La doc Swagger reste publique
+    - { path: ^/api/docs, roles: PUBLIC_ACCESS }
+    - { path: ^/api/contexts, roles: PUBLIC_ACCESS }
+    # Tout le reste de l'API requiert l'auth
+    - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+
+when@test:
+  security:
+    password_hashers:
+      App\Entity\User:
+        algorithm: auto
+        cost: 4 # Lowest possible value for bcrypt
+        time_cost: 3 # Lowest possible value for argon
+        memory_cost: 10 # Lowest possible value for argon
